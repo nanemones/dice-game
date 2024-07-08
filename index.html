@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>擲骰子遊戲</title>
+    <title>3D 擲骰子遊戲</title>
     <style>
         body {
             display: flex;
@@ -23,24 +23,34 @@
             flex-wrap: wrap;
             justify-content: center;
             margin-top: 20px;
+            perspective: 1000px;
         }
         .dice {
             width: 50px;
             height: 50px;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(0deg) rotateY(0deg);
+            transition: transform 1s;
             margin: 10px;
+        }
+        .dice div {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background-color: white;
+            border: 2px solid #333;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 24px;
-            border: 2px solid #333;
-            border-radius: 5px;
-            background-color: white;
-            animation: roll 1s ease;
         }
-        @keyframes roll {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        .front  { transform: translateZ(25px); }
+        .back   { transform: rotateY(180deg) translateZ(25px); }
+        .right  { transform: rotateY(90deg) translateZ(25px); }
+        .left   { transform: rotateY(-90deg) translateZ(25px); }
+        .top    { transform: rotateX(90deg) translateZ(25px); }
+        .bottom { transform: rotateX(-90deg) translateZ(25px); }
         .result {
             margin-top: 20px;
             font-size: 24px;
@@ -48,7 +58,7 @@
     </style>
 </head>
 <body>
-    <h1>擲骰子</h1>
+    <h1>3D 擲骰子遊戲</h1>
     <label for="numDice">選擇擲幾顆骰子:</label>
     <input type="number" id="numDice" min="1" max="10" value="1">
     <button onclick="rollDice()">擲骰子</button>
@@ -56,6 +66,10 @@
     <div class="result" id="result"></div>
 
     <script>
+        function getRandomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
         function rollDice() {
             const numDice = document.getElementById('numDice').value;
             const diceContainer = document.getElementById('diceContainer');
@@ -66,10 +80,27 @@
             for (let i = 0; i < numDice; i++) {
                 const dice = document.createElement('div');
                 dice.className = 'dice';
-                const diceValue = Math.floor(Math.random() * 6) + 1;
-                dice.innerText = diceValue;
+                const value = getRandomInt(1, 6);
+
+                const faces = [
+                    `<div class="front">1</div>`,
+                    `<div class="back">2</div>`,
+                    `<div class="right">3</div>`,
+                    `<div class="left">4</div>`,
+                    `<div class="top">5</div>`,
+                    `<div class="bottom">6</div>`
+                ];
+
+                dice.innerHTML = faces.join('');
+
+                // Apply a random rotation to simulate a roll
+                const xRotation = getRandomInt(0, 4) * 90;
+                const yRotation = getRandomInt(0, 4) * 90;
+
+                dice.style.transform = `rotateX(${xRotation}deg) rotateY(${yRotation}deg)`;
+
                 diceContainer.appendChild(dice);
-                total += diceValue;
+                total += value;
             }
 
             result.innerText = '總和: ' + total;
